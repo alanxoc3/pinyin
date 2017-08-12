@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-import os, sys
-
 # A python script that converts typed ascii pinyin to actual unicode pinyin.
+
+import os, sys
 
 U_DOT = 252
 
+consonants='bcdfghjklmnpqrstvwxyz'
+uv = 'v' + chr(U_DOT)
+vowels='aeiou' + uv
+pinyindigits='12345' # 5 would just disappear.
+
+# A helper function, converting a character to the pinyin version.
 def toPinyin(order,letter):
     if order == '1':
         if letter == 'a':
@@ -17,7 +23,7 @@ def toPinyin(order,letter):
             return chr(333)
         elif letter == 'u':
             return chr(363)
-        elif letter == chr(U_DOT):
+        elif letter in uv:
             return chr(470)
 
     elif order == '2':
@@ -31,7 +37,7 @@ def toPinyin(order,letter):
             return chr(243)
         elif letter == 'u':
             return chr(250)
-        elif letter == chr(U_DOT):
+        elif letter in uv:
             return chr(472)
 
     elif order == '3':
@@ -45,7 +51,7 @@ def toPinyin(order,letter):
             return chr(466)
         elif letter == 'u':
             return chr(468)
-        elif letter == chr(U_DOT):
+        elif letter in uv:
             return chr(474)
 
     elif order == '4':
@@ -59,40 +65,72 @@ def toPinyin(order,letter):
             return chr(242)
         elif letter == 'u':
             return chr(249)
-        elif letter == chr(U_DOT):
+        elif letter in uv:
             return chr(476)
+
+    elif order == '5' and letter in vowels:
+        return letter
 
     return None
 
+# (2) Syllables with two or three vowel letters:
+
+# (i) If the first vowel letter is a medial, namely, "i", "u", or "ü", the tone mark is on the vowel letter immediately following the medial.
+
+# Examples:
+# jiāo (教; teach)
+# lüè (略; strategy)
+# jiǔ (九; nine) 
+# guì (貴; expensive)
+# 
+# (ii) If the first vowel letter is not a medial, the tone mark is always on the first vowel letter.
+# 
+# Examples:
+# # hǎi (海; sea)
+# zhǎo (找; look for)
+# shǒu (手; hand)
+# gěi (給; give)
+# 
+# (iii) If the tone mark is on "i", the dot is omitted.
+# 
+
+
+# Input is a reversed string, first char is a number. Last part is vowels.
+def bufToPinyin(buf):
+    
+    pass
+
 def asciiToPinyin(text):
     output = ''
-    checkNext = False
-    prevchar = ''
-    for x in text:
-        if checkNext == False:
-            if x == 'a' or x == 'e' or x == 'i' or x == 'o' or x == 'u':
-                checkNext = True
-            else:
-                output += x
-        else:
-            checkNext = False
-            if prevchar == 'u' and x == ':':
-                x = chr(U_DOT)
-                checkNext = True
-            else:
-                pinyin = toPinyin(x, prevchar)
-                if pinyin == None:
-                    output += prevchar
-                    if x == 'a' or x == 'e' or x == 'i' or x == 'o' or x == 'u':
-                        checkNext = True
-                    else:
-                        output += x
-                else:
-                    output += pinyin
-        prevchar = x
+    buf = ''
+    conCheck = False
 
-    if checkNext == True:
-        output += prevchar
+    for x in text[::-1]:
+        if buf:
+            if conCheck:
+                if x in consonants:
+                    buf += x
+                    continue
+                else if x in vowels:
+                    buf += x
+                    conCheck = False
+                    continue
+                else:
+                    output += bufToPinyin(buf)
+                    buf = ''
+            else:
+                if x in vowels:
+                    buf += x
+                else:
+                    output += bufToPinyin(buf)
+                    buf = ''
+
+        if x in pinyindigits:
+            buf += x
+            conCheck = True
+        else:
+            output += x
+
     return output
 
 def main():
@@ -104,6 +142,7 @@ def main():
     else:
         output_str = asciiToPinyin( sys.stdin.read() )
         sys.stdout.write(output_str) # No newline.
+
 
 
 if __name__ == '__main__':
