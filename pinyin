@@ -7,6 +7,7 @@ U_DOT = 252
 
 consonants='bcdfghjklmnpqrstvwxyz'
 uv = 'v' + chr(U_DOT)
+medialvowels = uv + 'ui'
 vowels='aeiou' + uv
 pinyindigits='12345' # 5 would just disappear.
 
@@ -94,11 +95,30 @@ def toPinyin(order,letter):
 # (iii) If the tone mark is on "i", the dot is omitted.
 # 
 
-
 # Input is a reversed string, first char is a number. Last part is vowels.
+# 4oaix
 def bufToPinyin(buf):
-    
-    pass
+    order = buf[0]
+    remain = buf[1:]
+    pinyin = ''
+
+    iteration = 0
+    wasMedial = False
+
+    for x in remain[::-1]:
+        if iteration == 0 and x in vowels:
+            if x in medialvowels:
+                pinyin += x
+                wasMedial = True
+            else:
+                pinyin += toPinyin(order, x)
+        elif iteration == 1 and wasMedial:
+            pinyin += toPinyin(order, x)
+        else:
+            pinyin += x
+        iteration += 1
+
+    return pinyin[::-1]
 
 def asciiToPinyin(text):
     output = ''
@@ -111,16 +131,17 @@ def asciiToPinyin(text):
                 if x in consonants:
                     buf += x
                     continue
-                else if x in vowels:
+                elif x in vowels:
                     buf += x
                     conCheck = False
                     continue
                 else:
-                    output += bufToPinyin(buf)
+                    output += buf
                     buf = ''
             else:
                 if x in vowels:
                     buf += x
+                    continue
                 else:
                     output += bufToPinyin(buf)
                     buf = ''
@@ -131,7 +152,11 @@ def asciiToPinyin(text):
         else:
             output += x
 
-    return output
+    # Possibly extra number at end.
+    if buf:
+        output += buf
+
+    return output[::-1]
 
 def main():
     # Interactive mode: read from arguments.
