@@ -1,4 +1,4 @@
-* Pinyin Converter
+# Pinyin Interpreter
 
 A python script that converts ascii pinyin text to unicode pinyin!!!
 
