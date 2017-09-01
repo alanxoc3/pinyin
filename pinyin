@@ -5,7 +5,7 @@ import os, sys
 
 U_DOT = 252
 
-consonants='bcdfghjklmnpqrstvwxyz'
+consonants='bcdfghjklmnpqrstwxyz'
 uv = 'v' + chr(U_DOT)
 medialvowels = uv + 'ui'
 vowels='aeiou' + uv
@@ -74,32 +74,30 @@ def toPinyin(order,letter):
 
     return None
 
-# (2) Syllables with two or three vowel letters:
-
-# (i) If the first vowel letter is a medial, namely, "i", "u", or "ü", the tone mark is on the vowel letter immediately following the medial.
-
+# (i) If the first vowel letter is a medial, namely, "i", "u", or "ü", the tone
+# mark is on the vowel letter immediately following the medial.
+#
 # Examples:
 # jiāo (教; teach)
 # lüè (略; strategy)
 # jiǔ (九; nine) 
 # guì (貴; expensive)
 # 
-# (ii) If the first vowel letter is not a medial, the tone mark is always on the first vowel letter.
+# (ii) If the first vowel letter is not a medial, the tone mark is always on
+# the first vowel letter.
 # 
 # Examples:
 # # hǎi (海; sea)
 # zhǎo (找; look for)
 # shǒu (手; hand)
 # gěi (給; give)
-# 
-# (iii) If the tone mark is on "i", the dot is omitted.
-# 
 
-# Input is a reversed string, first char is a number. Last part is vowels.
-# 4oaix
+# Input is a reversed string, first char is a number, the rest are vowels.
+# 4oai
 def bufToPinyin(buf):
     order = buf[0]
     remain = buf[1:]
+    medialVowel = ''
     pinyin = ''
 
     iteration = 0
@@ -108,15 +106,20 @@ def bufToPinyin(buf):
     for x in remain[::-1]:
         if iteration == 0 and x in vowels:
             if x in medialvowels:
-                pinyin += x
+                medialVowel = x
                 wasMedial = True
             else:
                 pinyin += toPinyin(order, x)
         elif iteration == 1 and wasMedial:
+            pinyin += medialVowel
             pinyin += toPinyin(order, x)
         else:
             pinyin += x
         iteration += 1
+
+    # For the case of only one vowel (a medial one).
+    if iteration == 1 and wasMedial:
+        pinyin += toPinyin(order, medialVowel)
 
     return pinyin[::-1]
 
