@@ -109,15 +109,16 @@ def bufToPinyin(buf):
                 wasMedial = True
             else:
                 pinyin += toPinyin(order, x)
-        elif iteration == 1 and wasMedial:
+        elif iteration == 1 and wasMedial and x in vowels:
             pinyin += toPinyin(order, x)
+            wasMedial = False
         else:
             pinyin += x
         iteration += 1
 
     # For the case of only one vowel (a medial one).
-    if iteration == 1 and wasMedial:
-        pinyin = toPinyin(order, pinyin[0])
+    if wasMedial:
+        pinyin = toPinyin(order, pinyin[0]) + pinyin[1:]
 
     return pinyin[::-1]
 
