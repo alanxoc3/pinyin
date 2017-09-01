@@ -1,4 +1,4 @@
-* Pinyin Converter
+# Pinyin Interpreter
 
 A python script that converts ascii pinyin text to unicode pinyin!!!
 
@@ -14,4 +14,4 @@ $ echo han4yu3 pin1yin1 | pinyin
 hànyǔ pīnyīn
 </pre>
 
-Report any bugs or feature requests in the issues page.
+Report any bugs or feature requests to the issues page. :)
